@@ -5,6 +5,7 @@ import { Stack } from "expo-router";
 import { PrivyProvider } from "@privy-io/expo";
 // import { getEnv } from 'expo-env';
 import { Drawer } from "expo-router/drawer";
+import { DrawerToggleButton } from "@react-navigation/drawer";
 
 const Layout: React.FC = () => {
   const appId = process.env.EXPO_PUBLIC_PRIVY_APP_ID;
@@ -20,11 +21,9 @@ const Layout: React.FC = () => {
   return (
     <PrivyProvider appId={appId} clientId={clientId}>
       <Drawer
-       initialRouteName="get_started"
-       screenOptions={{
-        headerShown: false,
-        drawerLabel: "Get Started",
-      }}>
+
+       
+      >
         <Drawer.Screen
           name="get_started"
           options={{
@@ -42,7 +41,9 @@ const Layout: React.FC = () => {
         <Drawer.Screen
           name="main"
           options={{
+            headerShown: true,
             drawerLabel: "Main",
+            headerLeft: () => <DrawerToggleButton />,
           }}
         />
       </Drawer>
