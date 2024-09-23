@@ -6,6 +6,7 @@ import { PrivyProvider } from "@privy-io/expo";
 // import { getEnv } from 'expo-env';
 import { Drawer } from "expo-router/drawer";
 import { DrawerToggleButton } from "@react-navigation/drawer";
+import CustomDrawer from "../../components/CustomDrawer";
 
 const Layout: React.FC = () => {
   const appId = process.env.EXPO_PUBLIC_PRIVY_APP_ID;
@@ -21,8 +22,27 @@ const Layout: React.FC = () => {
   return (
     <PrivyProvider appId={appId} clientId={clientId}>
       <Drawer
-
-       
+        drawerContent={(props) => <CustomDrawer {...props} />}
+        screenOptions={{
+          drawerStyle: {
+            backgroundColor: "#fff",
+            // width: 230,
+          },
+          headerStyle: {
+            //  backgroundColor: "#9dbd9d", // Set your desired background color
+            // height: 10, // Set the custom height for the header
+            justifyContent: "center", // Center content vertically
+          },
+          headerTitleStyle: {
+            fontWeight: "bold",
+            // fontSize: 18, // Adjust font size as needed
+            color: "#000",
+          },
+          headerTintColor: "red",
+          drawerLabelStyle: {
+            color: "#000",
+          },
+        }}
       >
         <Drawer.Screen
           name="get_started"
@@ -34,16 +54,15 @@ const Layout: React.FC = () => {
         <Drawer.Screen
           name="login"
           options={{
-            drawerLabel: "Login",
             headerShown: false,
+            drawerLabel: "Login",
           }}
         />
         <Drawer.Screen
           name="main"
           options={{
-            headerShown: true,
+            headerShown: false,
             drawerLabel: "Main",
-            headerLeft: () => <DrawerToggleButton />,
           }}
         />
       </Drawer>
