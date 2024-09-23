@@ -19,7 +19,12 @@ const Layout: React.FC = () => {
 
   return (
     <PrivyProvider appId={appId} clientId={clientId}>
-      <Drawer initialRouteName="get_started">
+      <Drawer
+       initialRouteName="get_started"
+       screenOptions={{
+        headerShown: false,
+        drawerLabel: "Get Started",
+      }}>
         <Drawer.Screen
           name="get_started"
           options={{
@@ -27,8 +32,19 @@ const Layout: React.FC = () => {
             drawerLabel: "Get Started",
           }}
         />
-        <Drawer.Screen name="login" options={{ drawerLabel: "Login" }} />
-        <Drawer.Screen name="main" options={{ drawerLabel: "Main" }} />
+        <Drawer.Screen
+          name="login"
+          options={{
+            drawerLabel: "Login",
+            headerShown: false,
+          }}
+        />
+        <Drawer.Screen
+          name="main"
+          options={{
+            drawerLabel: "Main",
+          }}
+        />
       </Drawer>
     </PrivyProvider>
   );
