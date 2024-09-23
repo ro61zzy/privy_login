@@ -1,9 +1,10 @@
 // app/_layout.tsx
 
-import React from 'react';
-import { Stack } from 'expo-router';
-import { PrivyProvider } from '@privy-io/expo';
+import React from "react";
+import { Stack } from "expo-router";
+import { PrivyProvider } from "@privy-io/expo";
 // import { getEnv } from 'expo-env';
+import { Drawer } from "expo-router/drawer";
 
 const Layout: React.FC = () => {
   const appId = process.env.EXPO_PUBLIC_PRIVY_APP_ID;
@@ -11,12 +12,24 @@ const Layout: React.FC = () => {
 
   // Check if the appId and clientId exist, otherwise throw an error
   if (!appId || !clientId) {
-    throw new Error("Privy appId or clientId is not defined in the environment variables.");
+    throw new Error(
+      "Privy appId or clientId is not defined in the environment variables."
+    );
   }
 
   return (
     <PrivyProvider appId={appId} clientId={clientId}>
-      <Stack />
+      <Drawer initialRouteName="get_started">
+        <Drawer.Screen
+          name="get_started"
+          options={{
+            headerShown: false,
+            drawerLabel: "Get Started",
+          }}
+        />
+        <Drawer.Screen name="login" options={{ drawerLabel: "Login" }} />
+        <Drawer.Screen name="main" options={{ drawerLabel: "Main" }} />
+      </Drawer>
     </PrivyProvider>
   );
 };
