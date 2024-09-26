@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, Button, StyleSheet } from 'react-native';
 import { Drawer } from "expo-router/drawer";
 import { DrawerToggleButton } from "@react-navigation/drawer";
 import { useEmbeddedWallet, isConnected, getUserEmbeddedWallet } from "@privy-io/expo";
@@ -18,62 +18,61 @@ const MainScreen: React.FC = () => {
   const [networkSwitched, setNetworkSwitched] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    const fetchBalance = async () => {
-      if (isConnected(wallet)) {
-        try {
-          const accounts = await wallet.provider.request({
-            method: 'eth_requestAccounts',
-          });
-
-          const balanceHex = await wallet.provider.request({
-            method: 'eth_getBalance',
-            params: [accounts[0], 'latest'],
-          });
-
-          
-            const networkId = await wallet.provider.request({
-              method: 'eth_chainId',
-            });
-            console.log("Network ID:", networkId);
-         
-          
-
-          // Convert the balance from Wei to Ether
-          const balanceInEther = parseFloat(balanceHex) / 10 ** 18; // Assuming Ether has 18 decimals
-          setBalance(balanceInEther.toFixed(4)); // Format balance to 4 decimal places
-          setNetwork(networkId)
-        } catch (error) {
-          console.error('Error fetching balance:', error);
-          setBalance('Error fetching balance');
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchBalance();
-  }, [wallet]);
-
-    // Function to switch to Sepolia
-    const switchToSepolia = async () => {
+  // Fetch balance and network when wallet is connected or network is switched
+  const fetchBalanceAndNetwork = async () => {
+    if (isConnected(wallet)) {
       try {
-        if (isConnected(wallet)) {
-          await wallet.provider.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0xaa36a7' }], // Sepolia chain ID
-          });
-          setNetworkSwitched(true);
-          setErrorMessage('');
-          console.log('Switched to Sepolia!');
-        } else {
-          setErrorMessage('Wallet not connected.');
-        }
+        const accounts = await wallet.provider.request({
+          method: 'eth_requestAccounts',
+        });
+
+        const balanceHex = await wallet.provider.request({
+          method: 'eth_getBalance',
+          params: [accounts[0], 'latest'],
+        });
+
+        const networkId = await wallet.provider.request({
+          method: 'eth_chainId',
+        });
+        console.log("Network ID:", networkId);
+
+        // Convert balance from Wei to Ether
+        const balanceInEther = parseFloat(balanceHex) / 10 ** 18; 
+        setBalance(balanceInEther.toFixed(4)); 
+        setNetwork(networkId);
       } catch (error) {
-        console.error('Error switching to Sepolia:', error);
-        setErrorMessage('Failed to switch to Sepolia.');
+        console.error('Error fetching balance:', error);
+        setBalance('Error fetching balance');
+      } finally {
+        setLoading(false);
       }
-    };
+    }
+  };
+
+  // Fetch balance and network initially
+  useEffect(() => {
+    fetchBalanceAndNetwork();
+  }, [wallet, networkSwitched]);  // Re-fetch when wallet changes or network is switched
+
+  // Function to switch to Sepolia
+  const switchToSepolia = async () => {
+    try {
+      if (isConnected(wallet)) {
+        await wallet.provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0xaa36a7' }], // Sepolia chain ID
+        });
+        setNetworkSwitched(true); // Trigger re-fetch after network switch
+        setErrorMessage('');
+        console.log('Switched to Sepolia!');
+      } else {
+        setErrorMessage('Wallet not connected.');
+      }
+    } catch (error) {
+      console.error('Error switching to Sepolia:', error);
+      setErrorMessage('Failed to switch to Sepolia.');
+    }
+  };
 
   const walletBalance = loading ? "Fetching balance..." : `${balance} ETH`;
 
@@ -89,18 +88,16 @@ const MainScreen: React.FC = () => {
       <Text style={styles.title}>Welcome to the main page of the app!</Text>
       <Text>Wallet Address: {walletAddress}</Text>
       <Text>Wallet Balance: {walletBalance}</Text>
-      <Text>The Network: {network} that's ethereum</Text>
+      <Text>Network ID: {network} (Current Network)</Text>
 
+      {/* Button to switch to Sepolia */}
+      <Button title="Switch to Sepolia" onPress={switchToSepolia} />
 
-            {/* Button to switch to Sepolia */}
-            <Button title="Switch to Sepolia" onPress={switchToSepolia} />
+      {networkSwitched ? (
+        <Text style={styles.successText}>Successfully switched to Sepolia!</Text>
+      ) : null}
 
-{networkSwitched ? (
-  <Text style={styles.successText}>Successfully switched to Sepolia!</Text>
-) : null}
-
-{errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-
+      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
     </View>
   );
 };
