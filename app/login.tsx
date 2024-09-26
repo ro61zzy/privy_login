@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { PrivyProvider, useLoginWithEmail } from "@privy-io/expo";
+import { PrivyProvider, useLoginWithEmail, useEmbeddedWallet, isNotCreated } from "@privy-io/expo";
 
 const LoginScreen: React.FC = () => {
   const router = useRouter();
@@ -20,6 +20,7 @@ const LoginScreen: React.FC = () => {
 
   const { sendCode } = useLoginWithEmail();
   const { loginWithCode } = useLoginWithEmail();
+  const wallet = useEmbeddedWallet();
 
   const handleSendCode = async () => {
     setLoading(true);
@@ -41,6 +42,12 @@ const LoginScreen: React.FC = () => {
     try {
       await loginWithCode({ code, email });
       Alert.alert("Success", "You are now logged in!");
+
+      // Create the wallet if it doesn't exist
+      if (isNotCreated(wallet)) {
+        await wallet.create({ recoveryMethod: 'privy' });
+      }
+
       router.push('/main'); // Navigate to the home screen
     } catch (error) {
       const errorMessage =
@@ -63,7 +70,6 @@ const LoginScreen: React.FC = () => {
             onChangeText={setEmail}
             placeholder="Email"
             inputMode="email"
-           // autoCompleteType="email"
           />
           <Button title="Send Code" onPress={handleSendCode} disabled={loading} />
         </View>
@@ -86,6 +92,7 @@ const LoginScreen: React.FC = () => {
     </View>
   );
 };
+
 
 const LoginWrapper: React.FC = () => {
   const appId = process.env.EXPO_PUBLIC_PRIVY_APP_ID;

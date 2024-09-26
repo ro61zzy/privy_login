@@ -1,12 +1,26 @@
 import React from 'react';
-import { SafeAreaView, View, Text, Image } from 'react-native';
+import { SafeAreaView, View, Text, Image, Button } from 'react-native';
 import { DrawerItemList } from '@react-navigation/drawer';
+import { useRouter } from "expo-router";
+import { BackHandler } from 'react-native';
 //import User from '../../../assets/images/agents/profile.jpg'
 
 
 const CustomDrawer = (props) => {
 
+    const router = useRouter();
 
+    const handleLogout = () => {
+        // Clear any user-specific data/state
+        // For example, if you're using useState:
+        setEmail('');
+        setCode('');
+        
+        BackHandler.exitApp();
+        // Navigate back to the login screen
+        router.push('/login');
+      };
+      
     return (
         <SafeAreaView>
             {/* Custom drawer header */}
@@ -38,6 +52,8 @@ const CustomDrawer = (props) => {
             </View>
             {/* Use DrawerItemList to include default items */}
             <DrawerItemList {...props} />
+
+            <Button title="Logout" onPress={handleLogout} />
         </SafeAreaView>
     );
 };
