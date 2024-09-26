@@ -49,10 +49,6 @@ const MainScreen: React.FC = () => {
     }
   };
 
-  // Fetch balance and network initially
-  useEffect(() => {
-    fetchBalanceAndNetwork();
-  }, [wallet, networkSwitched]);  // Re-fetch when wallet changes or network is switched
 
   // Function to switch to Sepolia
   const switchToSepolia = async () => {
@@ -76,6 +72,12 @@ const MainScreen: React.FC = () => {
 
   const walletBalance = loading ? "Fetching balance..." : `${balance} ETH`;
 
+    // Fetch balance and network initially
+    useEffect(() => {
+      fetchBalanceAndNetwork();
+    }, [ walletBalance, networkSwitched]);  // Re-fetch when wallet changes or network is switched
+  
+
   return (
     <View style={styles.container}>
       <Drawer.Screen
@@ -98,6 +100,10 @@ const MainScreen: React.FC = () => {
       ) : null}
 
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+<Text>
+
+      {walletBalance}
+</Text>
     </View>
   );
 };
