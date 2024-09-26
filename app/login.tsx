@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { PrivyProvider, useLoginWithEmail } from "@privy-io/expo";
@@ -14,35 +15,74 @@ const LoginScreen: React.FC = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(1); // Step to track whether to show email or code input
 
   const { sendCode } = useLoginWithEmail();
   const { loginWithCode } = useLoginWithEmail();
 
+  const handleSendCode = async () => {
+    setLoading(true);
+    try {
+      await sendCode({ email });
+      Alert.alert("Code sent!", "Check your email for the verification code.");
+      setStep(2); // Move to the next step to enter code
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred.";
+      Alert.alert("Error", errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      await loginWithCode({ code, email });
+      Alert.alert("Success", "You are now logged in!");
+      router.push('/main'); // Navigate to the home screen
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred.";
+      Alert.alert("Error", errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <View>
-      <Text>Login</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Login</Text>
 
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        inputMode="email"
-      />
+      {step === 1 && (
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Email"
+            inputMode="email"
+           // autoCompleteType="email"
+          />
+          <Button title="Send Code" onPress={handleSendCode} disabled={loading} />
+        </View>
+      )}
 
-      <Button title="send code" onPress={() => sendCode({ email })} />
+      {step === 2 && (
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={code}
+            onChangeText={setCode}
+            placeholder="Verification Code"
+            inputMode="numeric"
+          />
+          <Button title="Login" onPress={handleLogin} disabled={loading} />
+        </View>
+      )}
 
-      <Text>Login</Text>
-
-      <TextInput
-        value={code}
-        onChangeText={setCode}
-        placeholder="Code"
-        inputMode="numeric"
-      />
-      <Button
-        title="login"
-        onPress={() => loginWithCode({ code: code, email: "user@email.com" })}
-      />
+      {loading && <ActivityIndicator size="large" color="#0000ff" />}
     </View>
   );
 };
@@ -88,14 +128,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
-  },
-  loadingText: {
-    textAlign: "center",
-    color: "#666",
-  },
-  errorText: {
-    color: "red",
-    marginTop: 10,
   },
 });
 

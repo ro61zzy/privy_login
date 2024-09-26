@@ -14,8 +14,8 @@ const MainScreen: React.FC = () => {
           headerLeft: () => <DrawerToggleButton />,
         }}
       />
-      <Text style={styles.title}>Main Page</Text>
-      <Text>Welcome to the main page of the app!</Text>
+      <Text style={styles.title}>Welcome to the main page of the app!</Text>
+      <Text>Wallet balance: </Text>
     </View>
   );
 };
