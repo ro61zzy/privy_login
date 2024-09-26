@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { sepolia } from 'viem/chains';
 import { PrivyProvider, useLoginWithEmail, useEmbeddedWallet, isNotCreated } from "@privy-io/expo";
 
 const LoginScreen: React.FC = () => {
@@ -105,7 +106,7 @@ const LoginWrapper: React.FC = () => {
   }
 
   return (
-    <PrivyProvider appId={appId} clientId={clientId}>
+    <PrivyProvider appId={appId} clientId={clientId} supportedChains={[sepolia]}>
       <LoginScreen />
     </PrivyProvider>
   );
